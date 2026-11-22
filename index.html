@@ -1,534 +1,749 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#111d21">
-<title>泾渭无间 · 互动故事</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#18221f">
+<title>泾渭无间｜互动视觉小说</title>
 <style>
-:root{--gold:#d9bd88;--paper:#eee5d5;--muted:#b8ad9b;--panel:rgba(12,22,26,.86)}
+:root{--ink:#202a26;--jade:#b8c9bd;--paper:#f1f0e8;--muted:#c7d0c8;--gold:#d8c69d;--line:#ffffff35;--glass:#17211edb;--soft:#e8eee8;--shadow:0 20px 70px #06100c55}
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden}
-body{background:#111d21;color:var(--paper);font-family:"Noto Serif SC","Songti SC",serif}
-button{font:inherit;cursor:pointer;color:inherit}
-button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-#app{height:100%;width:100%;position:relative;overflow:hidden}
-#scene{position:absolute;inset:0;background:linear-gradient(180deg,#82988e 0%,#405e53 48%,#172d2c 100%);transition:background 1s}
-#scene:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,13,17,.05),rgba(5,13,17,.15) 35%,rgba(5,13,17,.86) 100%)}
-#scene.grass{background:linear-gradient(160deg,#8da99b,#587968 48%,#263e34)}
-#scene.tent{background:radial-gradient(ellipse at 50% 25%,#a1835d,#5b4938 50%,#172329)}
-#scene.snow{background:linear-gradient(155deg,#b4c2c0,#718c92 48%,#263e48)}
-#scene.palace{background:linear-gradient(150deg,#a08c70,#655849 50%,#253137)}
-#scene.night{background:radial-gradient(ellipse at 60% 25%,#526276,#26384b 48%,#101923)}
-#scene.river{background:linear-gradient(165deg,#8da9a5,#466b70 48%,#1b353d)}
-#scene:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.12;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E")}
-.top{position:absolute;z-index:5;top:0;left:0;right:0;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(#07121688,transparent)}
-.brand{font-size:16px;letter-spacing:5px;color:var(--gold)}
-.tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.tool,.action{border:1px solid #d9bd8844;background:#0b191d88;border-radius:30px;padding:9px 14px;font-size:12px;backdrop-filter:blur(12px)}
-.tool:hover,.action:hover{border-color:var(--gold);color:var(--gold)}
-.main{position:absolute;z-index:3;inset:13% 0 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:20px 6vw 6vh}
-.chapter-label{color:var(--gold);font-size:12px;letter-spacing:4px;margin-bottom:12px;text-align:center}
-.chapter-title{font-size:clamp(24px,4vw,38px);font-weight:400;letter-spacing:5px;margin:0 0 22px;text-align:center;text-shadow:0 2px 20px #0008}
-.dialogue{width:min(940px,100%);min-height:205px;padding:24px 30px 18px;border:1px solid #d9bd8844;border-radius:17px;background:var(--panel);backdrop-filter:blur(18px);box-shadow:0 18px 60px #0005;cursor:pointer}
-.speaker{font-size:13px;color:var(--gold);letter-spacing:2px;margin-bottom:15px}
-.line{font-size:clamp(16px,2vw,20px);line-height:2;letter-spacing:1px;min-height:86px;white-space:pre-wrap}
-.foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:#a99f8f;font-size:11px}
-.hint{color:var(--gold);letter-spacing:2px}
-.bottom{width:min(940px,100%);display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
-.bottom-group{display:flex;gap:8px}
-.action.primary{border-color:var(--gold);color:var(--gold);background:#d9bd8822}
-.action:disabled{opacity:.35;cursor:not-allowed}
-.progress{position:absolute;z-index:6;bottom:0;left:0;height:2px;background:var(--gold);width:0;transition:width .25s}
-.overlay{display:none;position:absolute;inset:0;z-index:20;background:#071115c9;backdrop-filter:blur(15px);align-items:center;justify-content:center;padding:18px}
-.overlay.show{display:flex}
-.modal{width:min(760px,100%);max-height:86%;overflow:auto;background:#17272b;border:1px solid #d9bd8855;border-radius:18px;padding:25px;box-shadow:0 20px 80px #0008}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.modal h2{font-size:21px;font-weight:400;letter-spacing:3px;color:var(--gold);margin:0}
-.close{background:none;border:0;font-size:25px;color:var(--paper)}
-.chapter-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.chapter-item{text-align:left;padding:12px;border:1px solid #d9bd8822;border-radius:11px;background:#ffffff08}
-.chapter-item:hover,.chapter-item.current{border-color:var(--gold);background:#d9bd8818}
-.chapter-item small{display:block;color:#aa9e89;margin-bottom:5px}
-.chapter-item strong{font-size:14px;font-weight:400}
-.setting-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 0;border-bottom:1px solid #ffffff18}
-.setting-row label{font-size:14px;color:#d8cfbd}
-.setting-row input{width:45%;accent-color:var(--gold)}
-.setting-row select{background:#17272b;color:var(--paper);border:1px solid #746b58;padding:8px;border-radius:8px}
-.note{font-size:12px;line-height:1.9;color:#a99f8f}
-#titleScreen{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:linear-gradient(#07121622,#071216d9)}
-.title-content{max-width:650px}
-.title-small{letter-spacing:8px;color:var(--gold);font-size:12px}
-.title-name{font-size:clamp(42px,8vw,76px);font-weight:400;letter-spacing:12px;margin:25px 0}
-.title-sub{color:#d2c8b6;letter-spacing:4px;font-size:13px}
-.title-desc{color:#c0b8a9;line-height:2.2;margin:30px auto;max-width:480px;font-size:14px}
-.start{padding:13px 42px;border:1px solid var(--gold);border-radius:40px;background:#d9bd8818;color:var(--gold);letter-spacing:5px}
-.start:hover{background:#d9bd8838}
-.view-choice{margin-top:20px;color:#c8bdab;font-size:13px}
-.view-choice button{background:none;border:0;color:var(--gold);padding:8px 12px}
-#toast{position:absolute;z-index:40;bottom:25px;left:50%;transform:translateX(-50%);background:#17272b;padding:10px 18px;border-radius:20px;color:var(--gold);font-size:12px;opacity:0;transition:opacity .3s;pointer-events:none}
-@media(max-width:600px){
- .top{padding:13px 13px;align-items:flex-start}
- .brand{font-size:13px;letter-spacing:3px;margin-top:8px}
- .tool{padding:7px 9px;font-size:11px}
- .main{inset:12% 0 0;padding:12px 13px 4vh}
- .chapter-title{letter-spacing:3px;margin-bottom:14px}
- .dialogue{padding:19px 17px 14px;min-height:205px;border-radius:14px}
- .line{font-size:16px;line-height:1.95}
- .bottom{margin-top:11px}
- .action{padding:9px 11px;font-size:12px}
- .bottom-group{gap:5px}
- .chapter-list{grid-template-columns:1fr}
- .modal{padding:19px}
- .title-name{letter-spacing:7px}
+html,body{margin:0;min-height:100%;background:#101815;color:var(--paper);font-family:"Noto Serif SC","Songti SC","STSong",serif}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #d7e4d9;outline-offset:3px}
+.hidden{display:none!important}
+
+/* 柔焦背景 */
+.screen{min-height:100svh;position:relative;overflow:hidden;background:#17211e}
+.backdrop{
+ position:absolute;inset:-2%;
+ background:
+ radial-gradient(ellipse at 22% 28%,#8b9b8660 0%,transparent 42%),
+ radial-gradient(ellipse at 78% 24%,#596d665c 0%,transparent 44%),
+ radial-gradient(ellipse at 54% 80%,#263c36 0%,#111b19 72%);
+ transform:scale(1.08);
+ filter:blur(19px) saturate(.78);
+ transition:background 1s ease,filter 1s ease
 }
+.backdrop:after{
+ content:"";position:absolute;inset:0;
+ background:linear-gradient(90deg,#111b18a6 0%,#111b1840 55%,#111b1866 100%),linear-gradient(0deg,#101815e8 0%,transparent 66%)
+}
+.home-backdrop{
+ background:
+ radial-gradient(ellipse at 50% 24%,#a6a88d66 0%,transparent 45%),
+ radial-gradient(ellipse at 15% 75%,#536e5d 0%,transparent 48%),
+ linear-gradient(145deg,#253d36,#111b19);
+ filter:blur(24px) brightness(.78)
+}
+.game-backdrop[data-mood=calm]{
+ background:
+ radial-gradient(ellipse at 28% 24%,#a1a58b72 0%,transparent 46%),
+ radial-gradient(ellipse at 78% 72%,#496a596b 0%,transparent 45%),
+ linear-gradient(145deg,#354d42,#111c1b)
+}
+.game-backdrop[data-mood=tender]{
+ background:
+ radial-gradient(ellipse at 70% 22%,#a88d8066 0%,transparent 43%),
+ radial-gradient(ellipse at 20% 70%,#63796b72 0%,transparent 48%),
+ linear-gradient(145deg,#43574e,#17201f)
+}
+.game-backdrop[data-mood=tense]{
+ background:
+ radial-gradient(ellipse at 70% 24%,#76645f80 0%,transparent 45%),
+ radial-gradient(ellipse at 18% 76%,#354c4c 0%,transparent 50%),
+ linear-gradient(145deg,#343c3b,#101719)
+}
+.game-backdrop[data-mood=urgent]{
+ background:
+ radial-gradient(ellipse at 70% 25%,#9a6b5966 0%,transparent 42%),
+ radial-gradient(ellipse at 18% 78%,#34464b 0%,transparent 48%),
+ linear-gradient(145deg,#3b3432,#101719)
+}
+
+/* 首页 */
+#home{display:grid;place-items:center;padding:26px}
+.home-content{
+ position:relative;z-index:1;width:min(900px,100%);
+ text-align:center;padding:52px 28px 38px
+}
+.eyebrow{font:11px/1.6 Arial,sans-serif;letter-spacing:.34em;color:#d9dfd6;text-transform:uppercase}
+.home-title{
+ font-size:clamp(46px,8vw,92px);font-weight:400;letter-spacing:.24em;
+ margin:20px 0 10px;text-indent:.24em;text-shadow:0 4px 30px #0008
+}
+.home-sub{font-size:13px;letter-spacing:.3em;color:#e1e7df;margin-bottom:34px}
+.home-desc{font-size:14px;line-height:2.1;color:#e3e8e1c9;letter-spacing:.08em}
+.home-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:30px 0 26px}
+.btn-primary,.btn-ghost{
+ border-radius:999px;padding:13px 30px;letter-spacing:.16em;font-size:13px;transition:.22s
+}
+.btn-primary{background:#e6ece4;color:#26342e;border:1px solid #f3f6f0;box-shadow:0 8px 26px #0003}
+.btn-primary:hover{background:white;transform:translateY(-2px)}
+.btn-ghost{background:#f5f7f018;color:#f5f7f0;border:1px solid #ffffff70;backdrop-filter:blur(12px)}
+.btn-ghost:hover{background:#ffffff24}
+.perspective-select{
+ margin:22px auto 0;display:flex;align-items:center;justify-content:center;
+ gap:9px;flex-wrap:wrap;color:#e3e8e1c9;font-size:12px;letter-spacing:.12em
+}
+.perspective-select button{
+ border:1px solid #ffffff55;background:#ffffff12;color:#f2f4ed;
+ border-radius:999px;padding:9px 17px;font-size:12px;transition:.2s
+}
+.perspective-select button.selected,.perspective-select button:hover{
+ background:#e6ece4;color:#26342e;border-color:#e6ece4
+}
+.perspective-note{width:100%;font-size:10px;color:#e0e6df99;letter-spacing:.05em;margin-top:2px}
+.creator{font-size:12px;letter-spacing:.2em;color:#e0e6df;margin-top:24px}
+.legal{max-width:720px;margin:20px auto 0;font:11px/1.9 sans-serif;color:#e0e6dfad}
+.home-foot{position:absolute;z-index:1;bottom:20px;left:0;right:0;text-align:center;font:10px sans-serif;letter-spacing:.12em;color:#e0e6df8c}
+
+/* 游戏界面 */
+#game{display:none;min-height:100svh}
+.game-backdrop{position:fixed}
+.game-top{
+ position:absolute;z-index:3;top:0;left:0;right:0;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:calc(18px + env(safe-area-inset-top)) clamp(16px,4vw,52px) 14px;
+ background:linear-gradient(180deg,#1018159c,transparent)
+}
+.game-brand{font-size:12px;letter-spacing:.22em;color:#e8eee8d9}
+.chapter-meta{text-align:right}
+.chapter-kicker{display:none!important}
+.chapter-name{font-size:15px;letter-spacing:.12em;margin-top:5px;color:#f1f3ed}
+.toolbar{
+ position:absolute;z-index:5;top:calc(70px + env(safe-area-inset-top));
+ right:clamp(14px,4vw,52px);display:flex;gap:7px
+}
+.tool{
+ display:flex;align-items:center;gap:7px;border:1px solid #ffffff3d;
+ border-radius:999px;padding:8px 13px;background:#18231fc2;color:#eef1e9;
+ font-size:11px;backdrop-filter:blur(14px);transition:.2s
+}
+.tool:hover{background:#e9eee8;color:#24312b}
+.tool .ico{font-size:14px;line-height:1}
+.scene-label{
+ position:absolute;z-index:2;left:clamp(18px,5vw,64px);top:45%;
+ font-size:11px;letter-spacing:.26em;color:#edf1e6a3;
+ text-shadow:0 2px 12px #0008;writing-mode:vertical-rl
+}
+.dialogue-wrap{
+ position:absolute;z-index:4;left:0;right:0;bottom:0;
+ padding:0 clamp(14px,5vw,70px) calc(22px + env(safe-area-inset-bottom));
+ background:linear-gradient(0deg,#101815f2 0%,#101815d9 68%,#10181500 100%)
+}
+.dialogue-inner{width:min(1120px,100%);margin:0 auto;padding-top:56px}
+.speaker-line{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.speaker-mark{width:7px;height:7px;border-radius:50%;background:#d7c69f;box-shadow:0 0 14px #d7c69f80}
+.speaker-name{font-size:14px;letter-spacing:.14em;color:#e6d7b4}
+.speaker-kind{font:10px sans-serif;letter-spacing:.12em;color:#c5d0c5a0}
+.dialogue-text{
+ font-size:clamp(16px,2vw,21px);line-height:2;letter-spacing:.045em;
+ color:#f5f4ed;min-height:2.1em;text-shadow:0 1px 8px #0006;
+ max-width:1000px;white-space:pre-wrap;cursor:pointer
+}
+.dialogue-hint{
+ display:flex;align-items:center;justify-content:space-between;
+ margin-top:18px;color:#dbe2d9a0;font:10px sans-serif;letter-spacing:.12em
+}
+.next-caret{display:inline-block;margin-left:8px;animation:blink 1.1s infinite}
+@keyframes blink{50%{opacity:.15}}
+.choices{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));
+ gap:10px;margin-top:22px;max-width:1000px
+}
+.choice{
+ border:1px solid #e3ece055;border-radius:18px;background:#dfe9e21c;
+ color:#f2f4ed;text-align:left;padding:14px 18px;font-size:13px;
+ line-height:1.75;backdrop-filter:blur(14px);transition:.22s
+}
+.choice:hover{background:#e6eee6e8;color:#26352d;border-color:#e6eee6;transform:translateY(-2px)}
+.choice .num{font:10px sans-serif;letter-spacing:.12em;color:#d9c99f;margin-right:12px}
+.choice:hover .num{color:#627768}
+.view-pick{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.view-pick .choice{min-width:190px}
+.status-note{font:10px sans-serif;color:#dce4dca0;margin-top:12px;letter-spacing:.1em}
+
+/* 浮层 */
+.overlay{
+ display:none;position:fixed;z-index:20;inset:0;background:#08100dd9;
+ backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:18px
+}
+.overlay.open{display:flex}
+.panel{
+ width:min(720px,100%);max-height:min(82svh,760px);overflow:auto;
+ border:1px solid #dfe9df35;border-radius:22px;background:#18231ff2;
+ box-shadow:var(--shadow);padding:24px
+}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.panel-title{font-size:18px;font-weight:400;letter-spacing:.12em}
+.close{border:0;background:transparent;color:#dce5dc;font-size:25px;padding:2px 8px}
+.history-list{display:grid;gap:0}
+.history-item{padding:13px 2px;border-bottom:1px solid #ffffff18}
+.history-speaker{font-size:11px;color:#d9c99f;letter-spacing:.12em;margin-bottom:5px}
+.history-text{font-size:13px;line-height:1.9;color:#eef0e9}
+.history-item button{
+ margin-top:8px;border:1px solid #ffffff30;border-radius:99px;
+ padding:6px 12px;color:#e7eee6;background:#ffffff0c;font-size:10px
+}
+.setting-row{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ padding:14px 0;border-bottom:1px solid #ffffff18;font-size:13px;color:#eef1e9
+}
+.setting-row input[type=range]{width:min(230px,50%);accent-color:#c7d7c8}
+.setting-row input[type=checkbox]{accent-color:#c7d7c8;width:18px;height:18px}
+.setting-sub{font-size:11px;color:#c2cec2a0;line-height:1.8;margin-top:14px}
+.log-empty{font-size:13px;color:#c2cec2a0;padding:24px 0}
+.toast{
+ position:fixed;z-index:40;bottom:calc(22px + env(safe-area-inset-bottom));
+ left:50%;transform:translateX(-50%);padding:10px 16px;border-radius:99px;
+ background:#e9eee8;color:#26352d;font:12px sans-serif;
+ box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s
+}
+.toast.show{opacity:1}
+
+@media(max-width:700px){
+ .home-content{padding:40px 10px 32px}
+ .home-title{letter-spacing:.16em;text-indent:.16em}
+ .home-desc{font-size:13px}
+ .game-top{padding-left:16px;padding-right:16px}
+ .game-brand{font-size:10px}
+ .chapter-name{font-size:13px}
+ .toolbar{top:calc(72px + env(safe-area-inset-top));left:12px;right:12px;justify-content:center;gap:5px}
+ .tool{padding:8px 11px;font-size:10px}
+ .tool .label{display:none}
+ .scene-label{top:34%;left:14px}
+ .dialogue-wrap{padding-left:17px;padding-right:17px;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+ .dialogue-inner{padding-top:44px}
+ .dialogue-text{font-size:16px;line-height:1.95}
+ .choices{grid-template-columns:1fr;gap:8px;margin-top:16px}
+ .choice{padding:12px 15px}
+ .dialogue-hint{margin-top:12px}
+ .panel{padding:19px;border-radius:18px}
+ .setting-row{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div id="app">
-<div id="scene" class="grass"></div>
 
-<div id="titleScreen">
- <div class="title-content">
-  <div class="title-small">INTERACTIVE STORY</div>
-  <h1 class="title-name">泾渭无间</h1>
-  <div class="title-sub">北泾 · 南渭 · 山河旧梦</div>
-  <p class="title-desc">一段始于草原的故事。<br>从一个被称作王子的孩子开始，<br>走过故国、山河与漫长岁月。</p>
-  <button class="start" onclick="startGame()">开启故事</button>
-  <div class="view-choice">叙事视角：
-   <button onclick="chooseView('齐颜')">齐颜</button>
-   <button onclick="chooseView('南宫静女')">南宫静女</button>
+<section id="home" class="screen">
+ <div class="backdrop home-backdrop"></div>
+ <div class="home-content">
+  <div class="eyebrow">AN UNOFFICIAL INTERACTIVE FAN WORK</div>
+  <h1 class="home-title">泾渭无间</h1>
+  <div class="home-sub">山河有界 · 人心无间</div>
+  <div class="home-desc">一段故事，两种目光。<br>在每一次抉择之间，重新走近她们的命运。</div>
+
+  <div class="perspective-select">
+   <span>选择叙事视角</span>
+   <button id="pickQi" class="selected" onclick="pickPerspective('qi')">齐颜</button>
+   <button id="pickJing" onclick="pickPerspective('jing')">南宫静女</button>
+   <div class="perspective-note">视角会在原著人物实际参与的章节中开放；不影响原著主线。</div>
   </div>
-  <p class="note">改编自《泾渭情殇》· 请君莫笑原著<br>非官方个人同人互动作品</p>
- </div>
-</div>
 
-<header class="top">
- <div class="brand">泾渭无间</div>
- <div class="tools">
-  <button class="tool" onclick="openChapters()">章节</button>
-  <button class="tool" onclick="openSettings()">设置</button>
-  <button class="tool" onclick="saveGame()">存档</button>
-  <button class="tool" onclick="loadGame()">读档</button>
- </div>
-</header>
-
-<main class="main">
- <div class="chapter-label" id="chapterLabel">第一章 · 上部</div>
- <h2 class="chapter-title" id="chapterTitle">便把娇娥作儿郎</h2>
- <section class="dialogue" onclick="advance()">
-  <div class="speaker" id="speaker">旁白</div>
-  <div class="line" id="line">故事即将开始。</div>
-  <div class="foot"><span id="counter">点击继续</span><span class="hint">点击继续 ›</span></div>
- </section>
- <div class="bottom">
-  <div class="bottom-group">
-   <button class="action" onclick="previousLine()">回看</button>
-   <button class="action" id="autoBtn" onclick="toggleAuto()">自动</button>
+  <div class="home-actions">
+   <button class="btn-primary" onclick="startGame()">开始故事</button>
+   <button class="btn-ghost" onclick="continueGame()">继续故事</button>
+   <button class="btn-ghost" onclick="openPanel('about')">制作与版权</button>
   </div>
-  <div class="bottom-group">
-   <button class="action" onclick="toggleMute()">音乐</button>
-   <button class="action primary" onclick="advance()">继续 ›</button>
+  <div class="creator">制作人 · 27教主</div>
+  <div class="legal">本作品为非官方同人互动创作，与原著作者及版权方无官方关联。原著名称、人物及相关知识产权归其各自权利人所有。剧情文字、界面与素材分别遵循其对应权利及许可；非商业声明不代表自动取得原著授权。</div>
+ </div>
+ <div class="home-foot">一段故事，从此开始</div>
+</section>
+
+<section id="game" class="screen">
+ <div id="sceneBg" class="backdrop game-backdrop"></div>
+ <header class="game-top">
+  <div class="game-brand">泾渭无间 <span style="opacity:.5">/</span> 互动故事</div>
+  <div class="chapter-meta">
+   <div class="chapter-kicker" id="chapterKicker"></div>
+   <div class="chapter-name" id="chapterName">齐颜</div>
   </div>
- </div>
-</main>
-<div class="progress" id="progress"></div>
+ </header>
 
-<div class="overlay" id="chapterOverlay">
- <div class="modal">
-  <div class="modal-head"><h2>章节目录</h2><button class="close" onclick="closeOverlay('chapterOverlay')">×</button></div>
-  <div class="chapter-list" id="chapterList"></div>
+ <div class="toolbar">
+  <button class="tool" onclick="openPanel('chapters')"><span class="ico">卷</span><span class="label">章节</span></button>
+  <button class="tool" onclick="openPanel('history')"><span class="ico">☷</span><span class="label">回看</span></button>
+  <button class="tool" onclick="rollback()"><span class="ico">↶</span><span class="label">回档</span></button>
+  <button class="tool" id="autoBtn" onclick="toggleAuto()"><span class="ico">▷</span><span class="label">自动</span></button>
+  <button class="tool" onclick="openPanel('settings')"><span class="ico">⚙</span><span class="label">设置</span></button>
+  <button class="tool" onclick="saveGame()"><span class="ico">⌑</span><span class="label">存档</span></button>
  </div>
-</div>
 
-<div class="overlay" id="settingsOverlay">
- <div class="modal">
-  <div class="modal-head"><h2>故事设置</h2><button class="close" onclick="closeOverlay('settingsOverlay')">×</button></div>
-  <div class="setting-row"><label for="musicVolume">背景音乐音量</label><input id="musicVolume" type="range" min="0" max="100" value="20" oninput="setVolume(this.value)"></div>
-  <div class="setting-row"><label for="textSpeed">文字速度</label><input id="textSpeed" type="range" min="10" max="90" value="35" oninput="setTextSpeed(this.value)"></div>
-  <div class="setting-row"><label for="viewSelect">叙事视角</label><select id="viewSelect" onchange="changeView(this.value)"><option value="齐颜">齐颜</option><option value="南宫静女">南宫静女</option></select></div>
-  <div class="setting-row"><label>自动播放</label><button class="action" onclick="toggleAuto()">开启 / 关闭</button></div>
-  <p class="note">当前背景为无人物的氛围色彩占位，后续可逐章替换为对应地点的真实风景摄影。音乐为原创合成氛围音演示，可关闭或调节音量。</p>
+ <div class="scene-label" id="sceneLabel">王帐 · 黎明</div>
+
+ <div class="dialogue-wrap" id="dialogueWrap">
+  <div class="dialogue-inner" id="advanceArea" onclick="advance()">
+   <div class="speaker-line">
+    <span class="speaker-mark"></span>
+    <span class="speaker-name" id="speakerName">旁白</span>
+    <span class="speaker-kind" id="speakerKind"></span>
+   </div>
+   <div class="dialogue-text" id="dialogueText"></div>
+   <div class="dialogue-hint">
+    <span id="hintText">点击继续</span>
+    <span>继续 <span class="next-caret">⌄</span></span>
+   </div>
+  </div>
+  <div id="choiceArea" class="choices hidden"></div>
+  <div id="viewArea" class="view-pick hidden"></div>
+  <div id="nodeNote" class="status-note"></div>
+ </div>
+</section>
+
+<div class="overlay" id="panel" onclick="if(event.target===this)closePanel()">
+ <div class="panel">
+  <div class="panel-head">
+   <div class="panel-title" id="panelTitle">剧情回看</div>
+   <button class="close" onclick="closePanel()">×</button>
+  </div>
+  <div id="panelBody"></div>
  </div>
 </div>
-<div id="toast"></div>
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
-const chapters = [
-{title:"便把娇娥作儿郎",theme:"grass",lines:[
-["旁白","白云悠悠，绿草如茵。风吹过草原，碧色的草浪一路延伸到天边。"],
-["旁白","一支队伍正从远处疾驰而来。领头的大汗接到消息：可敦要生产了。"],
-["旁白","他顾不得休息，催马赶回王帐。"],
-["旁白","帐中传来婴儿嘹亮的啼哭。大汗终于赶到床边，望向刚刚生产的可敦。"],
-["大汗","妹子，你怎么样？"],
-["可敦","大汗……是儿子还是女儿？"],
-["旁白","大汗看了一眼襁褓中的婴儿，平静地回答。"],
-["大汗","是儿子，我们的第一个儿子。"],
-["旁白","稳婆心中明白，襁褓里分明是个女孩。可她不敢违逆大汗的决定。"],
-["旁白","于是，这个女孩自出生起，便被当作草原王子抚养。"],
-["旁白","巫医为孩子留下狼王图腾。那是部族给予新生王子的祝福。"],
-["大汗","从今日起，你便叫乞颜阿古拉。"],
-["旁白","草原的风仍在吹。一个王子的故事，就此开始。"],
-["旁白","第一章结束。"]
-]},
-{title:"少年情结义安达",theme:"grass",lines:[
-["旁白","时光流转，阿古拉渐渐长大。草原上的生活教会他骑马、射箭，也让他逐渐显露出过人的天赋。"],
-["旁白","年幼的阿古拉已经能够拉开小软弓，并在五步之外射中靶心。"],
-["旁白","大汗为孩子的表现感到骄傲，甚至牵来一匹小马驹作为奖励。"],
-["旁白","然而，阿古拉却更喜欢父亲的黑马黑风。"],
-["旁白","在草原上，少年人的情谊与承诺，也在这样的岁月里慢慢生根。"],
-["旁白","第二章结束。"]
-]},
-{title:"天赐神迹降宝驹",theme:"grass",lines:[
-["旁白","草原辽阔，骏马奔腾。对于一个草原上的孩子而言，马不仅是伙伴，也是力量与自由的象征。"],
-["旁白","阿古拉与马之间，似乎有着旁人难以理解的联系。"],
-["旁白","人们将这份与生俱来的亲近视作神迹，认为这是天神给予草原的恩赐。"],
-["旁白","一匹与众不同的骏马，也将成为阿古拉成长道路上的重要记忆。"],
-["旁白","第三章结束。"]
-]},
-{title:"献女不成埋祸种",theme:"tent",lines:[
-["旁白","撑犁部与图巴部之间的关系并不平静。部族之间的利益、婚约与权势，牵动着草原各方。"],
-["旁白","阿古拉与吉雅同岁。围绕两个孩子的安排，一场涉及婚约与部族关系的交涉正在发生。"],
-["旁白","大人们的决定，看似只是眼前的一桩婚事，却为日后的矛盾埋下了种子。"],
-["旁白","第四章结束。"]
-]},
-{title:"引外族草原祸起",theme:"night",lines:[
-["旁白","草原各部之间的暗流逐渐汇聚。原本看似遥远的纷争，终于一步步逼近撑犁部。"],
-["旁白","外族势力介入，局势开始失控。"],
-["旁白","曾经纵横草原的力量，也将迎来前所未有的考验。"],
-["旁白","第五章结束。"]
-]},
-{title:"四海定君臣间隙",theme:"palace",lines:[
-["旁白","草原与渭国之间的关系，牵涉的不只是疆土，还有君臣、宗嗣与礼法。"],
-["旁白","不同的制度与立场，让双方的矛盾愈发难以调和。"],
-["旁白","一场更大的风暴，已经悄然逼近。"],
-["旁白","第六章结束。"]
-]},
-{title:"国破家亡不自知",theme:"night",lines:[
-["旁白","战火席卷而来。对于草原上的人们而言，曾经熟悉的生活在一夜之间变得陌生。"],
-["旁白","南宫静女仍在父亲身边。她尚不知道，远方的战事将如何改变许多人的命运。"],
-["旁白","北泾的命运，也在这场战争中走向转折。"],
-["旁白","第七章结束。"]
-]},
-{title:"浴火涅槃讨血仇",theme:"snow",lines:[
-["旁白","故国覆灭，旧日生活不复存在。曾经的草原王子，也从此走上截然不同的道路。"],
-["旁白","复仇成为支撑她活下去的执念。"],
-["旁白","她必须隐藏过去，忍耐伤痛，在漫长岁月中等待机会。"],
-["旁白","第八章结束。"]
-]},
-{title:"前尘雨打风吹去",theme:"night",lines:[
-["旁白","十年光阴，足以让许多事物面目全非。"],
-["旁白","过去的名字与身份被收进记忆深处，一个新的身份逐渐出现在世人面前。"],
-["旁白","昔日草原上的经历，并没有真正离开她。"],
-["旁白","第九章结束。"]
-]},
-{title:"良心未泯仇与苦",theme:"palace",lines:[
-["旁白","复仇的道路并不意味着心中再无其他情绪。"],
-["旁白","仇恨、怜悯与无法轻易割舍的良知，在她心中彼此拉扯。"],
-["旁白","有些选择，并不能简单地用对错来衡量。"],
-["旁白","第十章结束。"]
-]},
-{title:"结新友步步为营",theme:"palace",lines:[
-["旁白","进入新的环境后，齐颜开始结识新的人，也逐渐熟悉周围的规则。"],
-["旁白","每一次交谈、每一次试探，都可能影响未来的布局。"],
-["旁白","她需要谨慎地向前走，不能让自己的真实目的暴露。"],
-["旁白","第十一章结束。"]
-]},
-{title:"赠字无心种因果",theme:"palace",lines:[
-["旁白","一次看似寻常的赠字，成为两个人之间新的交集。"],
-["旁白","落笔之时或许并未多想，留下的字却可能在日后生出意想不到的因果。"],
-["旁白","人与人之间的缘分，有时正是从这样细小的事情开始。"],
-["旁白","第十二章结束。"]
-]},
-{title:"因差错二女品扇",theme:"palace",lines:[
-["旁白","一把扇子，让两位女子产生了新的交集。"],
-["旁白","原本因差错而起的事情，在言语与观察之间渐渐有了别样意味。"],
-["旁白","有些误会，也在不经意间留下了印象。"],
-["旁白","第十三章结束。"]
-]},
-{title:"解异梦凶相初显",theme:"night",lines:[
-["旁白","梦境与现实交错，隐约显露出不祥的征兆。"],
-["旁白","某些看似无关紧要的细节，开始呈现出不同寻常的意味。"],
-["旁白","平静之下，暗流并未停止。"],
-["旁白","第十四章结束。"]
-]},
-{title:"只道当时已惘然",theme:"palace",lines:[
-["旁白","许多事情发生时，人往往并不知道它们将会带来什么。"],
-["旁白","一次相遇、一句言语，或一个未曾留意的眼神，都可能在记忆中留下痕迹。"],
-["旁白","待到后来回望，才知道当时的心绪早已悄然改变。"],
-["旁白","第十五章结束。"]
-]},
-{title:"舐犊情深暗谋划",theme:"palace",lines:[
-["旁白","身处权力中心的人，各有自己的牵挂与打算。"],
-["旁白","亲情与权谋并行，表面上的平静之下，计划正在悄悄展开。"],
-["旁白","有些安排，只有等到时机成熟才会显露。"],
-["旁白","第十六章结束。"]
-]},
-{title:"愿者独坐钓鱼台",theme:"palace",lines:[
-["旁白","局势逐渐明朗，有人选择主动出手，也有人耐心等待。"],
-["旁白","看似置身事外的人，未必真的没有自己的盘算。"],
-["旁白","棋局之中，愿者自会入局。"],
-["旁白","第十七章结束。"]
-]},
-{title:"龙门开故友重逢",theme:"palace",lines:[
-["旁白","一场重要的相逢终于到来。"],
-["旁白","昔日的故人与如今的处境之间，隔着漫长的岁月，也隔着各自不同的经历。"],
-["旁白","重逢并不意味着一切都能回到从前。"],
-["旁白","第十八章结束。"]
-]},
-{title:"沧海桑田断肠人",theme:"night",lines:[
-["旁白","岁月改变了许多东西。曾经熟悉的人与事，如今再看，已是另一番模样。"],
-["旁白","那些无法轻易说出口的情绪，也在此刻变得更加沉重。"],
-["旁白","有些故人，终究只能在回忆中相见。"],
-["旁白","第十九章结束。"]
-]},
-{title:"蟾宫折桂马由缰",theme:"palace",lines:[
-["旁白","科举之路终于迎来结果。"],
-["旁白","名次、才学与前途，在这一刻成为众人瞩目的焦点。"],
-["旁白","齐颜的人生，也因此进入新的阶段。"],
-["旁白","第二十章结束。"]
-]},
-{title:"探花街前巧失仪",theme:"palace",lines:[
-["旁白","新科探花游街，街前人潮涌动。"],
-["旁白","热闹的场面之中，一次意外让原本顺利的仪程出现波折。"],
-["旁白","看似偶然的失仪，也为接下来的事情埋下伏笔。"],
-["旁白","第二十一章结束。"]
-]},
-{title:"双喜临二女下嫁",theme:"palace",lines:[
-["旁白","景嘉八年，喜事接连而至。"],
-["旁白","两位女子的婚事被推上台前，朝堂与皇室之间的安排也随之展开。"],
-["旁白","婚姻从来不只是两个人的事情，其中还牵涉着身份、权势与各自的心思。"],
-["旁白","第二十二章结束。"]
-]},
-{title:"结连理各怀心思",theme:"palace",lines:[
-["旁白","两个人终于结为连理。"],
-["旁白","然而，婚姻的开始并不代表彼此已经完全了解对方。"],
-["旁白","各自隐藏的想法与过去，仍然横亘在两人之间。"],
-["旁白","第二十三章结束。"]
-]},
-{title:"曲意逢迎暗布局",theme:"palace",lines:[
-["旁白","面对新的身份与处境，齐颜必须学会在言语和行动之间保持分寸。"],
-["旁白","有时顺从是一种姿态，有时退让也是为了等待更好的时机。"],
-["旁白","真正的布局，往往藏在看似平常的应对之中。"],
-["旁白","第二十四章结束。"]
-]},
-{title:"三朝回门验落红",theme:"palace",lines:[
-["旁白","新婚之后，礼俗与宫中规矩接踵而来。"],
-["旁白","回门之事牵涉到婚姻中的隐秘，也让两人的处境更加复杂。"],
-["旁白","一些难以启齿的问题，终究需要面对。"],
-["旁白","第二十五章结束。"]
-]},
-{title:"姻缘措四角奇局",theme:"palace",lines:[
-["旁白","姻缘与局势交织，几个人的命运逐渐被牵连在一起。"],
-["旁白","看似偶然的安排，背后却有着错综复杂的关系。"],
-["旁白","局中之人，未必都能看清自己身处何处。"],
-["旁白","第二十六章结束。"]
-]},
-{title:"温柔软刀最诛心",theme:"night",lines:[
-["旁白","有些伤害并不来自刀剑，而来自最温柔的言语与态度。"],
-["旁白","越是亲近的人，越可能在不经意间触及对方最深处的心事。"],
-["旁白","温柔与痛楚，有时只隔着一层薄薄的纸。"],
-["旁白","第二十七章结束。"]
-]},
-{title:"别有幽愁暗恨生",theme:"night",lines:[
-["旁白","表面平静的生活之下，心事正在不断累积。"],
-["旁白","有些话不能说，有些秘密不能揭开。"],
-["旁白","沉默并没有让问题消失，反而让情绪更加难以排遣。"],
-["旁白","第二十八章结束。"]
-]},
-{title:"初闻不知曲中意",theme:"palace",lines:[
-["旁白","一段曲意被听见时，或许还没有人真正理解其中深意。"],
-["旁白","言语、情绪与彼此的试探，逐渐交织成更复杂的关系。"],
-["旁白","曾经不经意听过的话，也许终有一天会被重新想起。"],
-["旁白","第二十九章结束。"]
-]},
-{title:"恍然已是曲中人",theme:"night",lines:[
-["旁白","当故事继续向前，局中人才渐渐发现，自己早已不再是旁观者。"],
-["旁白","曾经听过的曲子，如今仿佛唱的正是自己。"],
-["旁白","命运将人推入其中，许多事情再也无法置身事外。"],
-["旁白","第一至三十章结束。前方的故事，仍在继续。"]
-]}
+// 本版不使用任何场景图片，背景由柔焦色彩与光影渐层构成。
+const chapters=[
+ {
+  id:'birth',
+  kicker:'',
+  title:'便把娇娥作儿郎',
+  place:'王帐 · 黎明',
+  views:['qi'],
+  mood:'calm',
+  scripts:{
+   qi:[
+    {speaker:'旁白',kind:'',text:'北泾草原，风越过无边的草场。大汗接到王帐传来的消息：可敦即将生产。',type:'narration'},
+    {speaker:'旁白',kind:'',text:'他立刻赶回王帐。帐中已经响起婴儿的啼哭，芙蓉平安产下一名孩子。',type:'narration'},
+    {speaker:'芙蓉',kind:'',text:'大汗……孩子是男是女？',type:'dialogue'},
+    {speaker:'旁白',kind:'',text:'大汗望向襁褓，明知那是个女婴，却向众人宣告：这是他的儿子。',type:'narration'},
+    {speaker:'旁白',kind:'',text:'从这一刻起，孩子将以王子的身份长大。知晓真相的人沉默下来，王帐里没有人再提起那个秘密。',type:'narration'},
+    {speaker:'旁白',kind:'',text:'巫医为新生的孩子留下狼王图腾。大汗废除与图巴部的联姻安排，册封芙蓉为可敦，并为孩子取名——乞颜阿古拉。',type:'narration'},
+    {choices:[
+     ['留意大汗的决定与王帐中的权力变化。','father'],
+     ['将目光放在狼王图腾与新生王子的祝福上。','totem']
+    ]},
+    {conditional:{
+     father:{speaker:'旁白',kind:'',text:'大汗的决定不仅改变了一个孩子的身份，也将改变王帐中每个人此后的处境。'},
+     totem:{speaker:'旁白',kind:'',text:'狼王图腾落在孩子身上。祝福与秘密同时降临，这个名字从此被草原记住。'}
+    }},
+    {speaker:'旁白',kind:'',text:'帐外天光渐亮。草原上的新一天开始了。',type:'narration'}
+   ]
+  }
+ },
+ {
+  id:'meeting',
+  kicker:'',
+  title:'廊下听风',
+  place:'一段原创互动演绎 · 午后',
+  views:['qi','jing'],
+  mood:'tender',
+  scripts:{
+   qi:[
+    {speaker:'齐颜',kind:'心中所想',text:'廊外风过竹梢，几片叶子落在石阶边。我放慢脚步，听见前方有人说话。',type:'thought'},
+    {speaker:'齐颜',kind:'心中所想',text:'有些相遇，起初并没有特别之处。只是后来回想，才发现那一刻早已被记住。',type:'thought'},
+    {choices:[
+     ['循着声音走近一些。','greet'],
+     ['暂且停步，不惊动廊下的人。','observe']
+    ]},
+    {conditional:{
+     greet:{speaker:'旁白',kind:'',text:'你选择主动靠近。廊下的风声渐渐远去，交谈即将开始。'},
+     observe:{speaker:'旁白',kind:'',text:'你选择暂时旁观。隔着一段距离，先将眼前的情形收入眼底。'}
+    }},
+    {speaker:'齐颜',kind:'心中所想',text:'这一刻的细节，后来都成了记忆里的一部分。',type:'thought'}
+   ],
+   jing:[
+    {speaker:'南宫静女',kind:'心中所想',text:'午后的园子很静，风吹过水面，碎光落在廊前。',type:'thought'},
+    {speaker:'南宫静女',kind:'心中所想',text:'远处似乎有人停下了脚步。我抬眼望去，想看看来人是否有话要说。',type:'thought'},
+    {choices:[
+     ['先开口，打破这片安静。','ask'],
+     ['暂且不说话，等对方先开口。','wait']
+    ]},
+    {conditional:{
+     ask:{speaker:'旁白',kind:'',text:'你选择先开口。话音落下，原本安静的廊下有了新的声息。'},
+     wait:{speaker:'旁白',kind:'',text:'你选择静静等待。短暂的沉默，让这次相遇多了几分试探。'}
+    }},
+    {speaker:'南宫静女',kind:'心中所想',text:'有时人与人之间的距离，便从一句话或一次沉默开始改变。',type:'thought'}
+   ]
+  }
+ }
 ];
 
-let chapterIndex=0;
-let lineIndex=0;
-let typing=false;
-let fullText="";
-let timer=null;
-let auto=false;
-let autoTimer=null;
-let speed=35;
-let view="齐颜";
-let muted=true;
-let volume=.2;
-let audio=null;
-let audioGain=null;
-
+let preferredView='qi';
+let currentItem=null;
+let state={
+ chapter:0,view:'qi',index:0,history:[],choices:[],
+ completedViews:[],auto:false,typing:false,completed:false,lastChoice:''
+};
+let typeTimer=null,autoTimer=null,charIndex=0,currentLine='';
+let audioCtx=null,masterGain=null,musicTimer=null;
+let musicOn=true,musicVolume=.24,effectVolume=.35,moodNow='calm';
+let typeSpeed=36;
 const $=id=>document.getElementById(id);
-function current(){return chapters[chapterIndex]}
-function showToast(message){
- const t=$("toast");t.textContent=message;t.style.opacity=1;
- clearTimeout(showToast.timer);
- showToast.timer=setTimeout(()=>t.style.opacity=0,1800);
+
+function activeScript(){return chapters[state.chapter].scripts[state.view]||[]}
+
+function pickPerspective(v){
+ preferredView=v;
+ document.getElementById('pickQi').classList.toggle('selected',v==='qi');
+ document.getElementById('pickJing').classList.toggle('selected',v==='jing');
 }
-function chooseView(v){
- view=v;
- $("viewSelect").value=v;
- showToast("已选择"+v+"视角");
+function setPreferredView(v){
+ preferredView=v;state.preferredView=v;
+ toast('已调整叙事偏好');saveGame(true);
 }
-function changeView(v){view=v;showToast("叙事视角已切换")}
+
 function startGame(){
- $("titleScreen").style.display="none";
- render();
- startAudio();
+ stopAuto();
+ state={
+  chapter:0,view:'qi',preferredView,
+  index:0,history:[],choices:[],completedViews:[],
+  auto:false,typing:false,completed:false,lastChoice:''
+ };
+ $('home').style.display='none';
+ $('game').style.display='block';
+ renderScene();showCurrent();unlockAudio();
 }
-function render(){
- const c=current();
- $("chapterLabel").textContent="第"+(chapterIndex+1)+"章 · 上部";
- $("chapterTitle").textContent=c.title;
- $("scene").className=c.theme;
- $("progress").style.width=((chapterIndex*100/chapters.length))+"%";
- $("viewSelect").value=view;
- showLine();
+
+function continueGame(){
+ let raw=localStorage.getItem('jingwei-save-v2');
+ if(!raw){toast('还没有存档，已为你开启新故事');startGame();return}
+ try{
+  state=JSON.parse(raw);
+  state.auto=false;state.typing=false;
+  state.completedViews=state.completedViews||[];
+  preferredView=state.preferredView||state.view||'qi';
+  $('home').style.display='none';
+  $('game').style.display='block';
+  renderScene();showCurrent();
+  toast('已读取本设备存档');unlockAudio();
+ }catch(e){toast('存档读取失败，已开启新故事');startGame()}
 }
-function showLine(){
- clearInterval(timer);
- const item=current().lines[lineIndex];
- if(!item)return;
- $("speaker").textContent=item[0]==="心中所想"?view+" · 心中所想":item[0];
- fullText=item[1];
- $("line").textContent="";
- typing=true;
- let i=0;
- timer=setInterval(()=>{
-  if(i<fullText.length){
-   $("line").textContent+=fullText.charAt(i++);
-  }else{
-   clearInterval(timer);typing=false;
+
+function renderScene(){
+ let c=chapters[state.chapter];
+ $('chapterKicker').textContent='';
+ $('chapterName').textContent=c.title;
+ $('sceneLabel').textContent=c.place;
+ $('sceneBg').dataset.mood=c.mood;
+ moodNow=c.mood;startMusic(c.mood);
+}
+
+function showCurrent(){
+ clearType();
+ let script=activeScript();
+ let item=script[state.index];
+ if(item&&item.conditional){
+  item=item.conditional[state.lastChoice]||Object.values(item.conditional)[0];
+ }
+ currentItem=item;
+ $('choiceArea').classList.add('hidden');
+ $('viewArea').classList.add('hidden');
+ $('advanceArea').classList.remove('hidden');
+ $('nodeNote').textContent='';
+ if(!item){showChapterEnd();return}
+
+ if(item.choices){
+  $('advanceArea').classList.add('hidden');
+  let box=$('choiceArea');box.innerHTML='';
+  item.choices.forEach((choice,i)=>{
+   let b=document.createElement('button');
+   b.className='choice';
+   b.innerHTML=`<span class="num">${['壹','贰','叁','肆'][i]}</span>${escapeHtml(choice[0])}`;
+   b.onclick=()=>choose(choice[1],choice[0]);
+   box.appendChild(b);
+  });
+  box.classList.remove('hidden');
+  $('nodeNote').textContent='请作出选择';
+  stopAuto();return;
+ }
+
+ $('advanceArea').onclick=advance;
+ $('speakerName').textContent=item.speaker||'旁白';
+ $('speakerKind').textContent=item.kind||'';
+ $('hintText').textContent='文字逐字显现 · 点击可显示全文';
+ currentLine=item.text||'';
+ $('dialogueText').textContent='';
+ charIndex=0;state.typing=true;
+ let speed=typeSpeed;
+ typeTimer=setInterval(()=>{
+  charIndex++;
+  $('dialogueText').textContent=currentLine.slice(0,charIndex);
+  if(charIndex>=currentLine.length){
+   clearType();state.typing=false;
+   $('hintText').textContent='点击继续';
+   if(state.auto)scheduleAuto();
   }
  },speed);
- $("counter").textContent=(lineIndex+1)+" / "+current().lines.length;
 }
+
+function clearType(){
+ if(typeTimer){clearInterval(typeTimer);typeTimer=null}
+}
+
 function advance(){
- if($("titleScreen").style.display!=="none")return;
- if(typing){
-  clearInterval(timer);$("line").textContent=fullText;typing=false;return;
+ if($('game').style.display==='none'||$('advanceArea').classList.contains('hidden'))return;
+ if(state.typing){
+  clearType();$('dialogueText').textContent=currentLine;
+  state.typing=false;$('hintText').textContent='点击继续';return;
  }
- if(lineIndex<current().lines.length-1){
-  lineIndex++;showLine();return;
- }
- if(chapterIndex<chapters.length-1){
-  chapterIndex++;lineIndex=0;render();return;
- }
- showToast("第一至三十章已阅读完毕");
+ let item=currentItem;
+ if(!item)return;
+ state.history.push({
+  chapter:state.chapter,view:state.view,
+  speaker:item.speaker||'旁白',kind:item.kind||'',text:item.text||''
+ });
+ state.index++;saveGame(true);showCurrent();
 }
-function previousLine(){
- if(typing){clearInterval(timer);$("line").textContent=fullText;typing=false;return}
- if(lineIndex>0){lineIndex--;showLine()}
- else if(chapterIndex>0){
-  chapterIndex--;lineIndex=chapters[chapterIndex].lines.length-1;
-  render();showLine();$("line").textContent=fullText;typing=false;
- }
+
+function choose(id,label){
+ state.lastChoice=id;
+ state.choices.push({chapter:state.chapter,view:state.view,label,index:state.index});
+ state.history.push({chapter:state.chapter,view:state.view,speaker:'选择',kind:'',text:label});
+ state.index++;saveGame(true);
+ if(id==='listen'||id==='observe'||id==='wait')effectTone('soft');
+ else effectTone('bright');
+ showCurrent();
 }
-function toggleAuto(){
- auto=!auto;
- $("autoBtn").classList.toggle("primary",auto);
- $("autoBtn").textContent=auto?"停止":"自动";
- if(auto)autoStep();
- else clearTimeout(autoTimer);
+
+function nextChapter(){
+ let next=state.chapter+1;
+ if(next>=chapters.length){toast('故事暂告一段落');backHome();return}
+ state.chapter=next;
+ state.view=chapters[next].views.includes(preferredView)?preferredView:chapters[next].views[0];
+ state.index=0;state.completed=false;
+ renderScene();showCurrent();saveGame(true);
 }
-function autoStep(){
- if(!auto)return;
- if(typing){
-  clearInterval(timer);$("line").textContent=fullText;typing=false;
-  autoTimer=setTimeout(autoStep,1200);
- }else{
-  advance();
-  autoTimer=setTimeout(autoStep,2200);
- }
-}
-function openChapters(){
- buildChapterList();$("chapterOverlay").classList.add("show");
-}
-function buildChapterList(){
- $("chapterList").innerHTML="";
- chapters.forEach((c,i)=>{
-  const b=document.createElement("button");
-  b.className="chapter-item"+(i===chapterIndex?" current":"");
-  const small=document.createElement("small");
-  small.textContent="第"+(i+1)+"章";
-  const strong=document.createElement("strong");
-  strong.textContent=c.title;
-  b.append(small,strong);
-  b.onclick=()=>{chapterIndex=i;lineIndex=0;render();closeOverlay("chapterOverlay")};
-  $("chapterList").appendChild(b);
+
+function showViewSelection(){
+ stopAuto();clearType();
+ $('advanceArea').classList.add('hidden');
+ $('choiceArea').classList.add('hidden');
+ let box=$('viewArea');box.innerHTML='';box.classList.remove('hidden');
+ $('nodeNote').textContent='选择你想跟随的目光。';
+ chapters[state.chapter].views.forEach(v=>{
+  let b=document.createElement('button');
+  b.className='choice';
+  b.textContent='以'+(v==='qi'?'齐颜':'南宫静女')+'的视角继续';
+  b.onclick=()=>{
+   state.view=v;state.index=0;box.classList.add('hidden');
+   renderScene();showCurrent();saveGame(true);
+  };
+  box.appendChild(b);
  });
 }
-function openSettings(){$("settingsOverlay").classList.add("show")}
-function closeOverlay(id){$(id).classList.remove("show")}
-function setTextSpeed(v){speed=100-v;if(typing)showLine()}
-function setVolume(v){
- volume=v/100;
- if(audioGain)audioGain.gain.value=muted?0:volume*.035;
+
+function switchView(v){
+ if(!chapters[state.chapter].views.includes(v))return;
+ state.view=v;state.index=0;state.completed=false;
+ $('advanceArea').onclick=advance;
+ renderScene();showCurrent();
 }
-function startAudio(){
+
+function rollback(){
+ stopAuto();
+ if(state.index>0){
+  state.index=Math.max(0,state.index-1);
+  let last=state.history.pop();
+  saveGame(true);renderScene();showCurrent();
+  toast('已回到上一段剧情');
+ }else if(state.chapter>0){
+  state.chapter--;
+  state.view=chapters[state.chapter].views[0];
+  state.index=0;renderScene();showCurrent();
+  toast('已回到上一段');
+ }else toast('已经是故事的起点');
+}
+
+function showChapterEnd(){
+ stopAuto();clearType();
+ let key=state.chapter+':'+state.view;
+ if(!state.completedViews.includes(key))state.completedViews.push(key);
+ $('advanceArea').classList.add('hidden');
+ $('choiceArea').classList.add('hidden');
+ let box=$('viewArea');box.classList.remove('hidden');box.innerHTML='';
+ $('nodeNote').textContent='';
+ let c=chapters[state.chapter];
+ let other=c.views.find(v=>v!==state.view&&!state.completedViews.includes(state.chapter+':'+v));
+ if(other){
+  let b=document.createElement('button');
+  b.className='choice';b.textContent='换一个视角';
+  b.onclick=()=>switchView(other);box.appendChild(b);
+ }
+ let n=document.createElement('button');
+ n.className='choice';
+ n.textContent=state.chapter<chapters.length-1?'继续前行':'回到首页';
+ n.onclick=()=>state.chapter<chapters.length-1?nextChapter():backHome();
+ box.appendChild(n);saveGame(true);
+}
+
+function saveGame(silent=false){
+ let clean={...state,preferredView,typing:false,auto:false};
+ localStorage.setItem('jingwei-save-v2',JSON.stringify(clean));
+ if(!silent)toast('进度已保存在本设备');
+}
+function resetGame(){
+ if(confirm('确定从头开始？当前设备上的存档将被覆盖。')){
+  localStorage.removeItem('jingwei-save-v2');startGame();
+ }
+}
+function backHome(){
+ stopAuto();$('game').style.display='none';$('home').style.display='grid';
+}
+
+function openPanel(which){
+ stopAuto();let title='',body='';
+ if(which==='chapters'){
+  title='故事目录';
+  body='<div class="history-list">'+chapters.map((c,i)=>
+   `<div class="history-item"><div class="history-text">${escapeHtml(c.title)}</div><button onclick="openChapter(${i})">阅读</button></div>`
+  ).join('')+'</div>';
+ }else if(which==='history'){
+  title='剧情回看';
+  body=state.history.length?
+   '<div class="history-list">'+state.history.map((h,i)=>
+    `<div class="history-item"><div class="history-speaker">${escapeHtml(h.speaker)}${h.kind?' · '+escapeHtml(h.kind):''}</div><div class="history-text">${escapeHtml(h.text)}</div><button onclick="jumpHistory(${i})">回到这里</button></div>`
+   ).join('')+'</div>':
+   '<div class="log-empty">还没有读过的剧情。</div>';
+ }else if(which==='settings'){
+  title='声音与显示设置';
+  body=`<div class="setting-row"><span>叙事视角</span><div>
+   <button style="background:#ffffff12;color:#eee;border:1px solid #ffffff33;border-radius:30px;padding:7px 12px" onclick="setPreferredView('qi')">齐颜</button>
+   <button style="background:#ffffff12;color:#eee;border:1px solid #ffffff33;border-radius:30px;padding:7px 12px" onclick="setPreferredView('jing')">南宫静女</button>
+  </div></div>
+  <div class="setting-row"><span>背景音乐</span><label><input id="musicToggle" type="checkbox" ${musicOn?'checked':''} onchange="setMusicOn(this.checked)"> 开启</label></div>
+  <div class="setting-row"><span>音乐音量</span><input type="range" min="0" max="100" value="${Math.round(musicVolume*100)}" oninput="setMusicVolume(this.value)"></div>
+  <div class="setting-row"><span>音效音量</span><input type="range" min="0" max="100" value="${Math.round(effectVolume*100)}" oninput="setEffectVolume(this.value)"></div>
+  <div class="setting-row"><span>文字速度</span><input type="range" min="15" max="80" value="36" oninput="typeSpeed=Number(this.value)"></div>
+  <div class="setting-sub">本演示使用浏览器合成的原创氛围音色。关闭音乐或静音不会影响剧情。</div>`;
+ }else{
+  title='制作与版权说明';
+  body='<p class="history-text">制作人：27教主</p>'+
+   '<p class="history-text">本作品为非官方同人互动创作，与《泾渭情殇》原著作者及相关版权方无官方关联。原著名称、人物及相关知识产权归其各自权利人所有。本作品不代表原作者立场，非商业声明不等于取得原著授权。</p>'+
+   '<p class="history-text">本版不使用场景图片，背景由柔焦色彩、雾感光影与渐层构成。</p>'+
+   '<p class="history-text">互动选项用于呈现观察角度、人物心绪与关系细节，不改写原著主线。标注为原创演绎的段落属于同人创作，不代表原著情节。</p>';
+ }
+ $('panelTitle').textContent=title;
+ $('panelBody').innerHTML=body;
+ $('panel').classList.add('open');
+}
+
+function openChapter(i){
+ closePanel();
+ state.chapter=i;
+ state.view=chapters[i].views.includes(preferredView)?preferredView:chapters[i].views[0];
+ state.index=0;state.completed=false;
+ renderScene();showCurrent();saveGame(true);
+}
+function closePanel(){$('panel').classList.remove('open')}
+
+function jumpHistory(i){
+ let item=state.history[i];if(!item)return;
+ state.chapter=item.chapter;state.view=item.view;
+ let seen=state.history.slice(0,i+1);state.history=seen;
+ let count=0;
+ for(let j=0;j<=i;j++){
+  let h=state.history[j];
+  if(h.chapter===item.chapter&&h.view===item.view)count++;
+ }
+ state.index=Math.max(0,count-1);
+ closePanel();renderScene();showCurrent();
+ toast('已回到所选剧情位置');saveGame(true);
+}
+
+function toggleAuto(){
+ state.auto=!state.auto;
+ $('autoBtn').querySelector('.ico').textContent=state.auto?'Ⅱ':'▷';
+ $('autoBtn').querySelector('.label').textContent=state.auto?'暂停':'自动';
+ if(state.auto){if(!state.typing)scheduleAuto()}
+ else stopAuto();
+}
+function scheduleAuto(){
+ if(!state.auto)return;
+ clearTimeout(autoTimer);autoTimer=setTimeout(()=>advance(),1700);
+}
+function stopAuto(){
+ state.auto=false;clearTimeout(autoTimer);
+ $('autoBtn')&&($('autoBtn').querySelector('.ico').textContent='▷',$('autoBtn').querySelector('.label').textContent='自动');
+}
+function toast(t){
+ let el=$('toast');el.textContent=t;el.classList.add('show');
+ clearTimeout(window._toastTimer);
+ window._toastTimer=setTimeout(()=>el.classList.remove('show'),2100);
+}
+function escapeHtml(s){
+ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// 原创合成氛围音乐
+function unlockAudio(){
  try{
-  if(audio)return;
-  const AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC)return;
-  audio=new AC();
-  audioGain=audio.createGain();
-  audioGain.gain.value=0;
-  audioGain.connect(audio.destination);
-  const osc=audio.createOscillator();
-  const osc2=audio.createOscillator();
-  osc.type="sine";osc.frequency.value=110;
-  osc2.type="sine";osc2.frequency.value=164.81;
-  const g2=audio.createGain();g2.gain.value=.22;
-  osc.connect(audioGain);osc2.connect(g2);g2.connect(audioGain);
-  osc.start();osc2.start();
-  audioGain.gain.value=muted?0:volume*.035;
+  if(!audioCtx){
+   audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+   masterGain=audioCtx.createGain();
+   masterGain.gain.value=musicOn?musicVolume:0;
+   masterGain.connect(audioCtx.destination);
+  }
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  startMusic(moodNow);
  }catch(e){}
 }
-function toggleMute(){
- muted=!muted;
- startAudio();
- if(audioGain)audioGain.gain.value=muted?0:volume*.035;
- showToast(muted?"音乐已静音":"音乐已开启");
+function tone(freq,duration,gain=.06,wave='sine',when=0){
+ if(!audioCtx||!masterGain||!musicOn)return;
+ let osc=audioCtx.createOscillator(),g=audioCtx.createGain();
+ osc.type=wave;osc.frequency.value=freq;
+ g.gain.setValueAtTime(.0001,audioCtx.currentTime+when);
+ g.gain.exponentialRampToValueAtTime(Math.max(.0002,gain),audioCtx.currentTime+when+.12);
+ g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+when+duration);
+ osc.connect(g);g.connect(masterGain);
+ osc.start(audioCtx.currentTime+when);
+ osc.stop(audioCtx.currentTime+when+duration+.05);
 }
-function saveGame(){
- try{
-  localStorage.setItem("jingwei_save",JSON.stringify({
-   chapterIndex,lineIndex,view,speed,volume,muted
-  }));
-  showToast("存档成功");
- }catch(e){showToast("当前浏览器无法存档")}
+function startMusic(mood){
+ if(!audioCtx||!musicOn)return;
+ clearInterval(musicTimer);
+ let sets={
+  calm:[261.63,329.63,392,523.25],
+  tender:[293.66,349.23,440,587.33],
+  tense:[220,261.63,311.13,415.3],
+  urgent:[196,246.94,293.66,392]
+ };
+ let notes=sets[mood]||sets.calm;let n=0;
+ musicTimer=setInterval(()=>{
+  if(!musicOn)return;
+  let f=notes[n%notes.length];tone(f,2.5,.028,'sine');
+  if(mood==='tense'||mood==='urgent')tone(f*.5,1.8,.025,'triangle',.15);
+  n++;
+ },2200);
 }
-function loadGame(){
- try{
-  const data=JSON.parse(localStorage.getItem("jingwei_save"));
-  if(!data){showToast("没有找到存档");return}
-  chapterIndex=Math.min(Math.max(data.chapterIndex||0,0),chapters.length-1);
-  lineIndex=Math.min(Math.max(data.lineIndex||0,0),chapters[chapterIndex].lines.length-1);
-  view=data.view||"齐颜";speed=data.speed||35;
-  volume=data.volume??.2;muted=data.muted??true;
-  $("musicVolume").value=volume*100;
-  $("textSpeed").value=100-speed;
-  $("viewSelect").value=view;
-  render();
-  showToast("读档成功");
- }catch(e){showToast("读取存档失败")}
+function setMusicOn(v){
+ musicOn=v;unlockAudio();
+ if(masterGain)masterGain.gain.setTargetAtTime(musicOn?musicVolume:0,audioCtx.currentTime,.08);
+ if(musicOn)startMusic(moodNow);else clearInterval(musicTimer);
 }
-document.addEventListener("keydown",e=>{
- if(e.key===" "||e.key==="Enter"){
-  if(!$("chapterOverlay").classList.contains("show")&&!$("settingsOverlay").classList.contains("show")){
-   e.preventDefault();advance();
-  }
- }
- if(e.key==="Escape"){
-  closeOverlay("chapterOverlay");closeOverlay("settingsOverlay");
+function setMusicVolume(v){
+ musicVolume=Number(v)/100;
+ if(masterGain&&audioCtx)masterGain.gain.setTargetAtTime(musicOn?musicVolume:0,audioCtx.currentTime,.06);
+}
+function setEffectVolume(v){effectVolume=Number(v)/100}
+function effectTone(kind){
+ if(!audioCtx||effectVolume<=0)return;
+ let f=kind==='bright'?660:440,osc=audioCtx.createOscillator(),g=audioCtx.createGain();
+ osc.type='triangle';osc.frequency.value=f;
+ g.gain.setValueAtTime(.0001,audioCtx.currentTime);
+ g.gain.exponentialRampToValueAtTime(Math.max(.0002,.035*effectVolume),audioCtx.currentTime+.025);
+ g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+.22);
+ osc.connect(g);g.connect(audioCtx.destination);
+ osc.start();osc.stop(audioCtx.currentTime+.24);
+}
+window.addEventListener('keydown',e=>{
+ if(e.key==='Escape')closePanel();
+ if(e.key===' '&&$('game').style.display!=='none'&&!$('panel').classList.contains('open')){
+  e.preventDefault();advance();
  }
 });
 </script>
