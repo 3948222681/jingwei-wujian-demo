@@ -31,9 +31,35 @@
 @media(max-width:700px){.relation-stage{height:350px}.relation-node{font-size:11px;padding:8px 10px;min-width:68px}.relation-world{transform:rotateX(10deg) rotateY(-8deg)}}
 @media(max-width:700px){.home-content{padding:40px 10px}.home-title{letter-spacing:.16em;text-indent:.16em}.home-desc{font-size:13px}.game-top{padding-left:16px;padding-right:16px}.game-brand{font-size:10px}.chapter-name{font-size:13px}.toolbar{top:calc(72px + env(safe-area-inset-top));left:10px;right:10px;justify-content:center;gap:5px}.tool{padding:8px 10px;font-size:10px}.language-select{padding:7px 10px;font-size:10px}.tool .label{display:none}.scene-label{top:34%;left:14px}.dialogue-wrap{padding-left:17px;padding-right:17px;padding-bottom:calc(18px + env(safe-area-inset-bottom))}.dialogue-inner{padding:17px 16px 14px}.dialogue-text{font-size:16px;line-height:1.9}.choices{grid-template-columns:1fr;gap:8px}.choice{padding:11px 14px}.panel{padding:19px}.setting-row{font-size:12px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* 入站密码门：仅用于避免随意访问，不构成服务器级安全保护 */
+#passwordGate{position:fixed;z-index:99999;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(ellipse at 20% 20%,#71857966,transparent 40%),linear-gradient(135deg,#101815f5,#26372ff5);backdrop-filter:blur(18px)}
+#passwordGate .gate-card{width:min(440px,100%);padding:34px 26px 28px;border:1px solid #e3eadb99;border-radius:24px;background:linear-gradient(145deg,#edf2e8f2,#d6e2d6ed);box-shadow:0 24px 80px #0008;color:#26372e;text-align:center}
+#passwordGate .gate-kicker{font:10px/1.8 Arial,sans-serif;letter-spacing:.28em;color:#718273}
+#passwordGate .gate-title{font-size:30px;font-weight:400;letter-spacing:.2em;margin:13px 0 8px}
+#passwordGate .gate-desc{font-size:13px;line-height:2;color:#53675a;margin:0 0 20px}
+#gatePassword{width:100%;padding:14px 16px;border:1px solid #9cac9c;border-radius:13px;background:#ffffffc9;color:#26372e;font:15px/1.4 Arial,sans-serif;letter-spacing:.08em;text-align:center;outline:none}
+#gatePassword:focus{border-color:#647d68;box-shadow:0 0 0 3px #9eb39b55}
+#gateSubmit{width:100%;margin-top:12px;padding:13px 18px;border:1px solid #536c59;border-radius:999px;background:#354d3d;color:#f2f4ec;letter-spacing:.18em}
+#gateError{min-height:22px;margin:10px 0 0;color:#9b5146;font-size:12px}
+#passwordGate .gate-foot{margin-top:16px;color:#778579;font:10px/1.8 Arial,sans-serif;letter-spacing:.08em}
+
 </style>
 </head>
 <body>
+<div id="passwordGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+ <div class="gate-card">
+  <div class="gate-kicker">A PRIVATE FAN-MADE INTERACTIVE STORY</div>
+  <div class="gate-title" id="gateTitle">泾渭无间</div>
+  <p class="gate-desc">此间有约，请验密入内。<br>请输入访问密码，开启这一段故事。</p>
+  <form onsubmit="return unlockSite(event)">
+   <input id="gatePassword" type="password" autocomplete="off" placeholder="请输入访问密码" aria-label="访问密码" autofocus>
+   <button id="gateSubmit" type="submit">验密入内</button>
+   <div id="gateError" aria-live="polite"></div>
+  </form>
+  <div class="gate-foot">UNOFFICIAL FAN WORK · NON-COMMERCIAL</div>
+ </div>
+</div>
 <section id="home" class="screen">
  <div class="backdrop"></div><div class="home-content">
   <div class="eyebrow">AN UNOFFICIAL INTERACTIVE FAN WORK</div><h1 class="home-title">泾渭无间</h1><div class="home-sub">山河有界 · 人心无间</div>
@@ -55,6 +81,9 @@
 <div class="overlay" id="panel" onclick="if(event.target===this)closePanel()"><div class="panel"><div class="panel-head"><div class="panel-title" id="panelTitle">故事资料</div><button class="close" onclick="closePanel()">×</button></div><div id="panelBody"></div></div></div>
 <div class="toast" id="toast"><small>ACHIEVEMENT UNLOCKED</small><span id="toastText"></span></div>
 <script>
+const SITE_ACCESS_PASSWORD = 'JingWei-8266!';
+function unlockSite(event){if(event)event.preventDefault();const input=document.getElementById('gatePassword');const error=document.getElementById('gateError');if(input&&input.value===SITE_ACCESS_PASSWORD){document.getElementById('passwordGate').style.display='none';document.body.style.overflow='';return false;}if(error)error.textContent='密码不正确，请再试一次。';if(input){input.value='';input.focus();}return false;}
+document.body.style.overflow='hidden';
 const LANGS={
  zh:{start:'开始故事',continue:'继续故事',about:'制作与版权',chapters:'章节',history:'回看',rollback:'回档',auto:'自动',time:'故事时间',characters:'人物',relations:'关系',achievements:'成就',settings:'设置',save:'存档',hint:'点击继续',choose:'请选择你的回应',next:'进入下一章',scene:'场景',story:'互动故事',pov:'人物视角',select:'选择语言',prompt:'选择只影响当下回应，不改变原著主线。',advance:'继续',speaker:'旁白',aboutText:'《泾渭无间》为非官方互动同人作品。原著名称与人物归原著作者及版权方所有。本页面文字为互动改编，不是原著正文，也不替代原著阅读。'},
  en:{start:'Begin Story',continue:'Continue Story',about:'About & Credits',chapters:'Chapters',history:'History',rollback:'Back',auto:'Auto',time:'Story Time',characters:'Characters',relations:'Relations',achievements:'Achievements',settings:'Settings',save:'Save',hint:'Tap to continue',choose:'Choose your response',next:'Next chapter',scene:'Scene',story:'Interactive Story',pov:'Character POV',select:'Language',prompt:'Your choice changes the immediate response, not the original storyline.',advance:'Continue',speaker:'Narration',aboutText:'Jingwei Wujian is an unofficial interactive fan work. The original title and characters belong to their respective rights holders. This adaptation is not the original novel and does not replace reading it.'},
@@ -86,6 +115,22 @@ const CH1_JA=[
 ];
 const SPEAKER_EN={'旁白':'Narration','巫医':'Healer','苏赫巴鲁':'Suhebaru','齐颜':'Qi Yan','南宫静女':'Nangong Jingnü','南宫姝女':'Nangong Shunü','巴音':'Bayin','阿古拉':'Agula'};
 const SPEAKER_JA={'旁白':'ナレーション','巫医':'巫医','苏赫巴鲁':'スヘバル','齐颜':'斉顔','南宫静女':'南宮静女','南宫姝女':'南宮姝女','巴音':'バイン','阿古拉':'アグラ'};
+
+const DISCLAIMER_HTML = `
+<div class="panel-row"><strong>一、作品性质与创作目的</strong><p>《泾渭无间》是基于个人兴趣制作的非官方同人互动创作，属于粉丝向的非商业性练习与交流项目。制作初衷是表达对原作的喜爱，尝试将阅读体验转化为互动视觉小说形式，并练习网页设计、交互叙事、界面制作与程序开发。本项目并非官方游戏、官方衍生作品、授权改编作品，也不代表原作者、出版社、平台或任何相关权利人的立场。</p></div>
+<div class="panel-row"><strong>二、原作权利归属</strong><p>本项目涉及的原作名称《泾渭情殇》、原作人物姓名及形象、人物关系、世界观、背景设定、故事情节与其他可识别的原作元素，其相关著作权及其他合法权益仍归原作者及依法享有权利的主体所有。本页面不会因为制作、整理、改写、翻译、编排或加入互动功能，而主张取得上述原作内容的所有权。若页面中出现原作相关名称或元素，均是为了标明同人创作所依据的作品及其角色背景。</p></div>
+<div class="panel-row"><strong>三、非官方及无授权声明</strong><p>本项目为粉丝个人制作，与原作者、出版方、版权代理方、晋江文学城及其他相关平台不存在官方合作、委托、背书、赞助或隶属关系。除非另有明确、可核实的书面授权，本项目不声称已经获得原作改编、翻译、复制、传播或商业使用许可。页面中的“同人”“非官方”“粉丝作品”等标注仅用于说明创作性质，不应被理解为权利人已经许可本项目。</p></div>
+<div class="panel-row"><strong>四、非商业用途声明</strong><p>本项目目前仅供制作者个人学习、测试、欣赏及有限范围内的非商业交流使用，不以获取经济利益为目的。项目不设置付费阅读、章节解锁收费、会员订阅、打赏、众筹、广告分成、商品销售、虚拟道具销售或其他直接、间接盈利机制；不出售原作角色、设定、剧情、图片、文本、代码包装或本项目访问资格；不以本项目向任何人收取费用，也不将其作为商业产品进行经营。若未来用途发生变化，将另行评估并在取得必要许可前停止相关公开或商业活动。</p></div>
+<div class="panel-row"><strong>五、改编内容与原著区分</strong><p>本项目的章节编排、互动界面、选项系统、人物关系图、成就系统、阅读回看、存档功能、视觉呈现及部分新增表达，属于制作者为本项目进行的个人设计与技术尝试；但这些新增设计并不意味着原作元素因此转为制作者所有。页面中的剧情概述、场景衔接、旁白、选项、回应及其他文字属于同人改编表达，可能与原作存在情节或设定上的联系。互动选项主要用于改变即时回应或阅读体验，不代表原著正史，也不应被视为原作者认可的剧情分支。</p></div>
+<div class="panel-row"><strong>六、翻译与语言版本</strong><p>如本项目提供英文、日文或其他语言界面及文字版本，其目的仅为个人语言练习和同人阅读体验测试。翻译、转述或改写不会改变原作相关权利的归属，也不意味着取得原作翻译权或向公众传播译本的许可。不同语言版本可能存在措辞差异、文化语境差异或尚待校订之处；如与原作内容存在出入，应以权利人正式发布的原作版本为准。</p></div>
+<div class="panel-row"><strong>七、素材、图片、音乐与第三方内容</strong><p>如页面使用到第三方字体、软件库、图标、图片、音效、音乐或其他素材，其权利归相应作者、开发者或权利人所有，并应依其适用的许可条件使用。本项目中的程序合成音效或示意性视觉效果，不应被误认为原作官方音源、官方美术或官方设定图。对于来源不明、授权状态不清晰或权利人提出异议的素材，应及时核查，并视情况替换、移除或停止使用。</p></div>
+<div class="panel-row"><strong>八、访问限制与传播范围</strong><p>本项目设置访问密码，是为了减少无关访问、方便个人测试和控制分享范围，并非版权许可、法律豁免或对作品合法性的保证。密码保护也不代表网页内容不会被复制、截图、下载或转发。未经权利人许可，不应擅自将本项目中的原作相关内容重新上传、镜像发布、打包分发、出售或用于其他商业活动。访问者不得将本项目冒充官方作品，亦不得利用本项目侵犯原作者或其他权利人的合法权益。</p></div>
+<div class="panel-row"><strong>九、尊重原作者及权利人</strong><p>制作者尊重原作者的创作劳动及所有相关权利人的合法权益。本项目的存在并非为了替代原作阅读、抢占原作市场、误导读者或损害原作声誉。原作的完整内容、正式出版信息、官方衍生作品及权利人发布的权威资料，均应以原作者或正式授权渠道为准。欢迎读者支持原作及其合法发行渠道。</p></div>
+<div class="panel-row"><strong>十、异议处理与内容调整</strong><p>如原作者、版权方、出版方或其他合法权利人认为本项目中的某项内容涉及其权利，制作者愿意在收到具体、合理的权利说明后及时沟通，并根据情况对相关内容进行修改、限制访问、替换或移除。此声明不限制权利人依法行使权利，也不要求权利人必须先联系制作者才可采取法律行动。</p></div>
+<div class="panel-row"><strong>十一、免责声明的法律边界</strong><p>本声明旨在如实说明项目的同人性质、非官方身份和非商业创作目的，并表达尊重原作及权利人的态度；它不是法律意见，也不能代替授权许可，更不能通过单方面声明排除或免除依法可能产生的责任。是否构成侵权，应结合实际使用内容、传播方式、适用法律及具体事实判断。非商业、注明出处、设置密码或声明“如有侵权立即删除”，均不当然意味着相关使用已经获得法律许可。</p></div>
+<div class="panel-row"><strong>十二、最终说明</strong><p>感谢原作者创作《泾渭情殇》，也感谢每一位尊重原创、支持正版的读者。本项目只是一份个人同人互动尝试，所有对原作的喜爱与致意都不应被理解为对原作权利的占有。若本项目与权利人的意愿或合法权益发生冲突，应以尊重权利人合法权益为先。本项目不代表官方，不以盈利为目的，也不试图取代原作。</p></div>
+<p class="muted" style="margin-top:16px">本页面为个人同人项目说明。此声明不能代替版权授权或专业法律意见。</p>`;
+
 function tr(s){if(!s)return s;let lang=S.lang||'zh';if(lang==='zh')return s;let dict=UI_TEXT;if(dict[s])return dict[s];return s;}
 function setLanguage(lang){S.lang=LANGS[lang]?lang:'zh';document.documentElement.lang=S.lang==='zh'?'zh-CN':S.lang==='ja'?'ja':'en';const L=LANGS[S.lang];const home=$('languageSelectHome');if(home)home.value=S.lang;document.querySelectorAll('.language-select').forEach(x=>x.value=S.lang);
  const ey=document.querySelector('.eyebrow'),sub=document.querySelector('.home-sub'),desc=document.querySelector('.home-desc'),legal=document.querySelector('.legal');if(ey)ey.textContent=S.lang==='en'?'AN UNOFFICIAL INTERACTIVE FAN WORK':S.lang==='ja'?'非公式インタラクティブ・ファン作品':'AN UNOFFICIAL INTERACTIVE FAN WORK';if(sub)sub.textContent=S.lang==='en'?'Bound by lands · Unbound by hearts':S.lang==='ja'?'山河に境あり · 人の心に隔たりなし':'山河有界 · 人心无间';if(desc)desc.innerHTML=S.lang==='en'?'Follow the original chapter order across the northern grasslands and southern kingdom.<br>Listen for the feelings left unspoken through choices and memories.':S.lang==='ja'?'原作の章立てに沿って、北の草原と南の国をたどる。<br>選択と回想を通して、語られなかった想いに耳を澄ませる。':'循着原著章节顺序，走过北泾与南渭。<br>在互动与回看之间，听见人物未曾说尽的心事。';if(legal)legal.textContent=S.lang==='en'?LANGS.en.aboutText:S.lang==='ja'?LANGS.ja.aboutText:'本作品为非官方同人互动创作，与原著作者及版权方无官方关联。原著名称、人物及相关知识产权归其各自权利人所有。互动文字为改编创作，不替代原著。';const homeBtns=document.querySelectorAll('.home-actions button');if(homeBtns.length===3){homeBtns[0].textContent=L.start;homeBtns[1].textContent=L.continue;homeBtns[2].textContent=L.about;}
@@ -144,7 +189,7 @@ const relationLayout={"齐颜":[50,48],"南宫静女":[72,30],"南宫姝女":[29
 const relationEdges=[["齐颜","南宫静女"],["齐颜","南宫姝女"],["南宫静女","南宫姝女"],["南宫静女","南宫让"],["南宫姝女","陆仲行"],["齐颜","南宫望"],["齐颜","公羊槐"],["齐颜","乞颜阿古拉"],["乞颜阿古拉","巴音"],["乞颜阿古拉","苏赫巴鲁"],["乞颜阿古拉","芙蓉"],["乞颜阿古拉","小蝶"],["齐颜","面具人"],["齐颜","丁酉"],["南宫让","额日和"]];
 function relationGraphHtml(){let unlocked=[...new Set(chapters.slice(0,S.chapter+1).flatMap(c=>c.cast||[]))];let names=Object.keys(relationLayout).filter(n=>unlocked.includes(n)||n==='齐颜'||n==='乞颜阿古拉');let pts=names.map(n=>({n,x:relationLayout[n][0],y:relationLayout[n][1]}));let lines=relationEdges.filter(([a,b])=>names.includes(a)&&names.includes(b)).map(([a,b])=>{let A=pts.find(p=>p.n===a),B=pts.find(p=>p.n===b);return `<line x1="${A.x}%" y1="${A.y}%" x2="${B.x}%" y2="${B.y}%"/>`}).join('');let nodes=pts.map(p=>`<button class="relation-node ${p.n==='齐颜'?'main':''}" style="left:${p.x}%;top:${p.y}%" onclick="showRelationPerson('${p.n}')">${esc(p.n)}</button>`).join('');return `<p class="relation-intro">人物以立体星图呈现。点击任意人物节点，查看已解锁的身份资料与关系线索；关系随剧情逐步展开。</p><div class="relation-stage"><div class="relation-world" id="relationWorld"><svg class="relation-lines" viewBox="0 0 100 100" preserveAspectRatio="none">${lines}</svg>${nodes}</div></div><div class="muted">当前已解锁 ${names.length} 位人物 · 关系线仅展示目前剧情已出现的人物</div><div class="relation-detail" id="relationDetail"><strong>选择一位人物</strong><p>点击上方星图中的人物节点，即可查看具体资料与关系。</p></div>`;}
 function showRelationPerson(name){let info=castInfo[name]||'此人物的详细资料尚未在当前剧情中确认。';let links=relationEdges.filter(e=>e.includes(name)).map(e=>e[0]===name?e[1]:e[0]).filter(n=>chapters.slice(0,S.chapter+1).some(c=>(c.cast||[]).includes(n))||n==='齐颜'||n==='乞颜阿古拉');let rel=links.length?'已出现的关联人物：'+links.join('、')+'。':'当前章节尚无可确认的关系线索。';let detail=document.getElementById('relationDetail');if(detail)detail.innerHTML=`<strong>${esc(name)}</strong><p>${esc(info)}</p><p style="margin-top:7px">${esc(rel)}</p>`;}
-function openPanel(which){let title='',html='';if(which==='about'){title='制作与说明';html='<p class="muted">《泾渭无间》为非官方互动同人作品。原著名称与人物归原著作者及版权方所有。本页面文字为互动改编，不是原著正文，也不替代原著阅读。第20—25章尚缺用户提供的正文，因此目前仅保留章节过场，未编造具体情节。英文与日文界面可切换，但剧情正文翻译尚未完成，需逐章校订。</p>';}
+function openPanel(which){let title='',html='';if(which==='about'){title='制作与版权声明';html=DISCLAIMER_HTML;}
 if(which==='perspective'){title='选择人物视角';let current=S.pov||'齐颜';html=`<p class="muted">选择你希望跟随的人物视角。切换只改变阅读时的视角标识，不改变原著事件顺序、章节进度与互动选择。</p><div class="setting-row"><span>齐颜视角</span><button class="tool" onclick="setPerspective('齐颜')">${current==='齐颜'?'✓ 当前视角':'选择'}</button></div><div class="setting-row"><span>南宫静女视角</span><button class="tool" onclick="setPerspective('南宫静女')">${current==='南宫静女'?'✓ 当前视角':'选择'}</button></div><p class="muted">当前版本会在旁白区域标明所选视角；对话与原有章节内容保持完整。不同人物的专属第一人称改写会在后续逐章校订时补全，避免擅自编造原著没有的心理活动。</p>`;}
 if(which==='chapters'){title='章节目录';html=titles.map((t,i)=>`<div class="panel-row"><strong>第${i+1}章 · ${t}</strong><p>${chapters[i].note||chapters[i].time+' · '+chapters[i].place}</p><button class="tool" onclick="goChapter(${i})">阅读本章</button></div>`).join('');}
 if(which==='history'){title='剧情回看';html=S.history.length?S.history.slice().reverse().map(h=>`<div class="panel-row"><strong>第${h.chapter+1}章 · ${esc(h.speaker)} · ${esc(h.kind)}</strong><p>${esc(h.text)}</p><button class="tool" onclick="goHistory(${h.chapter},${h.step})">回到此处</button></div>`).join(''):'<p class="muted">尚无回看记录。</p>';}
