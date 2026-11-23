@@ -223,12 +223,12 @@ function currentLine(){let c=chapters[S.chapter];if(S.step<c.lines.length){let x
 function render(){let c=chapters[S.chapter],d=currentLine();const L=LANGS[S.lang||'zh'];$('chapterKicker').textContent=S.lang==='en'?'CHAPTER '+(S.chapter+1):S.lang==='ja'?'第'+(S.chapter+1)+'章':'第'+(S.chapter+1)+'章';$('chapterName').textContent=S.lang==='en'?TITLE_EN[S.chapter]:S.lang==='ja'?TITLE_JA[S.chapter]:titles[S.chapter];$('sceneLabel').textContent=L.scene+' · '+(S.lang==='zh'?c.place:S.lang==='en'?(S.chapter===0?'Royal Camp of the Qiyan Tribe':c.place):S.lang==='ja'?(S.chapter===0?'乞顔部・王の天幕':c.place):c.place);let storyText=d.text;if(S.chapter===0&&S.lang==='en'&&S.step<CH1_EN.length)storyText=CH1_EN[S.step];if(S.chapter===0&&S.lang==='ja'&&S.step<CH1_JA.length)storyText=CH1_JA[S.step];$('speakerName').textContent=S.lang==='en'?(SPEAKER_EN[d.speaker]||d.speaker):S.lang==='ja'?(SPEAKER_JA[d.speaker]||d.speaker):d.speaker;$('speakerKind').textContent=S.lang==='en'?(d.kind.includes('叙述')?'Narration':d.kind.includes('对话')?'Dialogue':d.kind):S.lang==='ja'?(d.kind.includes('叙述')?'語り':d.kind.includes('对话')?'会話':d.kind):d.kind;$('dialogueText').textContent=storyText;if($('povBtn'))$('povBtn').innerHTML=(S.lang==='en'?'POV':S.lang==='ja'?'視点':'视')+' <span class="label">'+(S.lang==='en'?(S.pov==='齐颜'?'Qi Yan POV':'Nangong Jingnü POV'):S.lang==='ja'?(S.pov==='齐颜'?'斉顔視点':'南宮静女視点'):(S.pov||'齐颜')+'视角')+'</span>'; $('hintText').textContent=S.step===c.lines.length?L.choose:S.step>=c.lines.length+1?L.next:L.hint;let cont=document.querySelector('.dialogue-hint span:last-child');if(cont)cont.textContent=L.advance+'　⌄';let choosing=S.step===c.lines.length;document.querySelector('.dialogue-wrap').classList.toggle('is-choosing',choosing);$('choicePrompt').classList.toggle('hidden',!choosing);$('choicePrompt').textContent=choosing?(S.lang==='zh'?c.prompt:S.lang==='en'?'What will you choose?':'あなたはどうしますか？'):'';$('choiceArea').classList.toggle('hidden',!choosing);$('choiceArea').innerHTML='';if(choosing){let displayOpts=[...c.opts];displayOpts.forEach((t,i)=>{let b=document.createElement('button');b.className='choice';let optionText=S.lang==='zh'?t:t;b.innerHTML='<span class="num">'+String(i+1).padStart(2,'0')+'</span>'+esc(optionText);b.onclick=()=>choose(i);$('choiceArea').appendChild(b);});}$('advanceArea').style.pointerEvents=choosing?'none':'auto';$('nodeNote').textContent=LANGS[S.lang||'zh'].prompt+(c.note&&S.lang==='zh'?' '+c.note:'');$('autoBtn').innerHTML=(S.auto?'Ⅱ':'▷')+' <span class="label">'+L.auto+'</span>';$('sceneBg').style.background='radial-gradient(ellipse at 18% 22%,#71857975 0%,transparent 38%),radial-gradient(ellipse at 82% 18%,#b39d7860 0%,transparent 34%),linear-gradient(135deg,#1b2924,#34443a 42%,#17231f)';save();}
 function advance(){let c=chapters[S.chapter];if(S.step===c.lines.length)return;if(S.step<c.lines.length){S.history.push({chapter:S.chapter,step:S.step,...currentLine()});S.step++;if(S.chapter===22&&S.step===5)unlock('promise');render();return;}if(S.step>=c.lines.length+1){let q=S.branchQueue||[];let k=S.branchIndex||0;if(k<q.length-1){S.history.push({chapter:S.chapter,step:S.step,...currentLine()});S.branchIndex=k+1;render();return;}if(S.ifPendingDeath){let deathText=S.ifPendingDeath;S.ifPendingDeath='';showDeath(deathText,'flowing_fire_if');return;}let game=storyGameForChapter(S.chapter);if(game&&!((S.storyGames||{})[S.chapter])){openMiniGame(game,true);return;}S.history.push({chapter:S.chapter,step:S.step,...currentLine()});S.branchQueue=[];S.branchIndex=0;if(S.chapter<29){unlockCompleted(S.chapter+1);S.chapter++;S.step=0;render();}else{$('dialogueText').textContent='当前互动篇章暂告一段落。感谢你与人物同行。';$('hintText').textContent='已到当前篇章末尾';S.step++;save();}}}
 function choose(i){let c=chapters[S.chapter];let chosen=c.opts[i];let snap=JSON.parse(JSON.stringify(S));delete snap._lastChoiceSnapshot;S._lastChoiceSnapshot=snap;S.choices[S.chapter]=i;S.history.push({chapter:S.chapter,step:S.step,speaker:'你的选择',kind:'互动抉择',text:chosen});
-if(S.chapter===6){
+if(S.chapter===5){
  S.ifHistory=S.ifHistory||[];S.discoveredRoutes=S.discoveredRoutes||[];
  S.routeFlags=S.routeFlags||{};S.routeFlags.flowingFire=true;
  if(!S.discoveredRoutes.includes('flowing_fire'))S.discoveredRoutes.push('flowing_fire');
  if(i===0){
-  S.ifHistory.push({route:'flowing_fire',chapter:6,choice:i,result:'主线方向'});
+  S.ifHistory.push({route:'flowing_fire',chapter:5,choice:i,result:'主线方向'});
   S.branchQueue=[
    {speaker:'旁白',kind:'原著主线方向',text:'你俯身贴近流火的颈侧，低声唤它的名字。'},
    {speaker:'流火',kind:'动作',text:'流火发出一声长嘶，前蹄扬起，带着你冲向绝壁。它没有迟疑。'},
@@ -237,15 +237,13 @@ if(S.chapter===6){
   S.branchIndex=0;S.step++;applyChoiceGrowth(i,c);if(S.memories[S.chapter])S.memories[S.chapter].branch=S.branchQueue;playChime();render();return;
  }
  if(i===1){
-  S.ifHistory.push({route:'flowing_fire',chapter:6,choice:i,result:'死亡结局'});
-  applyChoiceGrowth(i,c);
-  showDeath('你勒住缰绳，沿着崖边急切寻找可以绕行的山道。碎石不断滚落，流火焦躁地踏动前蹄。身后的追兵已经封住退路。\n\n丁仪喝令士兵合围。流火侧身挡在你面前，不肯独自离开。刀光骤然落下，你与流火终究没能逃出洛水绝壁。','flowing_fire_if');
+  S.ifHistory.push({route:'flowing_fire',chapter:5,choice:i,result:'死亡结局'});
+  showDeath('你选择了另一条道路。洛水绝壁之上，命运就此终结。','flowing_fire_if');
   return;
  }
  if(i===2){
-  S.ifHistory.push({route:'flowing_fire',chapter:6,choice:i,result:'死亡结局'});
-  applyChoiceGrowth(i,c);
-  showDeath('你翻身下马，拔剑迎向追兵。流火却没有逃走，急促地嘶鸣着，几次试图用身体将你推回马背。\n\n丁仪一声令下，两侧追兵同时合围。你挥剑逼退最前面的士兵，却挡不住越来越多的刀枪。流火撞开一名追兵，最终仍与你一同被逼至绝壁边。乱箭与长枪同时袭来，你与流火当场倒在绝壁之前。这条IF命运就此终结。','flowing_fire_if');
+  S.ifHistory.push({route:'flowing_fire',chapter:5,choice:i,result:'死亡结局'});
+  showDeath('你选择了迎战追兵。洛水绝壁之上，命运就此终结。','flowing_fire_if');
   return;
  }
 }
