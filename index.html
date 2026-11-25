@@ -121,7 +121,7 @@
 <div class="toast" id="toast"><small>ACHIEVEMENT UNLOCKED</small><span id="toastText"></span></div>
 <div class="death-overlay" id="deathOverlay"><div class="death-card"><div class="death-kicker">FATE HAS REACHED ITS END</div><div class="death-title">你已身亡</div><p class="death-copy" id="deathCopy">命途至此，戛然而止。</p><div class="death-actions"><button onclick="retryLastChoice()">回到最近一次抉择</button><button onclick="acceptDeathEnding()">接受死亡结局</button></div></div></div>
 <script>
-const SITE_ACCESS_PASSWORD = 'JingWei-8266!';
+const SITE_ACCESS_PASSWORD = '107559';
 function unlockSite(event){if(event)event.preventDefault();const input=document.getElementById('gatePassword');const error=document.getElementById('gateError');if(input&&input.value===SITE_ACCESS_PASSWORD){document.getElementById('passwordGate').style.display='none';document.body.style.overflow='';return false;}if(error)error.textContent='密码不正确，请再试一次。';if(input){input.value='';input.focus();}return false;}
 document.body.style.overflow='hidden';
 const LANGS={
@@ -178,7 +178,7 @@ function setLanguage(lang){S.lang=LANGS[lang]?lang:'zh';document.documentElement
  document.querySelectorAll('.toolbar .tool').forEach(b=>{let f=b.getAttribute('onclick')||'';if(f.includes("'chapters'"))b.firstChild.textContent=S.lang==='en'?'Ch. ':S.lang==='ja'?'章 ':'卷 ';if(f.includes("'time'"))b.firstChild.textContent=S.lang==='en'?'T ':S.lang==='ja'?'時 ':'时 ';if(f.includes("'characters'"))b.firstChild.textContent=S.lang==='en'?'P ':S.lang==='ja'?'人 ':'人 ';if(f.includes("'relations'"))b.firstChild.textContent=S.lang==='en'?'R ':S.lang==='ja'?'縁 ':'缘 ';});
  if($('game').style.display==='block')render();save();}
 const titles=["便把娇娥作儿郎","少年情结义安达","天赐神迹降宝驹","献女不成埋祸种","引外族草原祸起","四海定君臣间隙","国破家亡不自知","浴火涅槃讨血仇","前尘雨打风吹去","良心未泯仇与苦","结新友步步为营","赠字无心种因果","因差错二女品扇","解异梦凶相初显","只道当时已惘然","舐犊情深暗谋划","愿者独坐钓鱼台","龙门开故友重逢","沧海桑田断肠人","蟾宫折桂马由缰","探花街前巧失仪","双喜临二女下嫁","结连理各怀心思","曲意逢迎暗布局","三朝回门验落红","姻缘措四角奇局","温柔软刀最诛心","别有幽愁暗恨生","初闻不知曲中意","恍然已是曲中人"];
-// 每章均为独立改编叙事，不复制原著段落。第20—25章尚缺用户提供的正文，采用克制的章节过场，不虚构具体情节。
+// 每章均为独立改编叙事，不复制原著段落。第20—25章尚缺正文，采用克制的章节过场，不虚构具体情节。
 const chapters=[
 {time:"草原旧岁",place:"撑犁部王帐",lines:[["旁白","北境草原辽阔无垠，风从远山吹来，掠过连绵的帐篷。王帐内外，却因一场生产而屏息以待。"],["巫医","禀汗王，可敦平安诞下一位小王子。"],["苏赫巴鲁","好！传令下去，今日王帐同庆。"],["旁白","只有少数人知道襁褓中的孩子并非男儿。苏赫巴鲁命巫医为孩子刺下狼王图腾，又以山岳之名为她命名：乞颜阿古拉。"],["旁白","这个秘密将成为她一生的枷锁，也成为她与故土之间最深的一道印记。"]],prompt:"若要守住这个秘密，你会先记住什么？",opts:["记住父母的嘱托","记住自己的来处","记住眼前每个人的神情"],replies:["你将那句嘱托牢牢记在心底。","山岳不会忘记自己的根。","你把众人的神情收进记忆，等待有朝一日看懂其中深意。"],cast:["苏赫巴鲁","芙蓉","乞颜阿古拉"],rel:"苏赫巴鲁与芙蓉共同守护阿古拉的身世秘密。"},
 {time:"阿古拉三至五岁",place:"撑犁部草场",lines:[["旁白","数年光阴过去，阿古拉渐渐长大。她能拉开小弓，也能在父亲的黑风背上稳稳坐住。"],["芙蓉","她还小，别总带她去草场。"],["苏赫巴鲁","乞颜家的孩子，无论男女，都该学会骑马。"],["旁白","又过两年，阿古拉与巴音结为安达。小蝶总跟在哥哥身边，巴音也成了阿古拉少有的亲近之人。"],["巴音","等我们长大了，再一起去猎黄鹿！"],["阿古拉","好。到时候把最好的鹿皮送你。"]],prompt:"面对新结识的安达，你会怎样回应？",opts:["以信物立下约定","把心里的秘密告诉他","先用行动证明情谊"],replies:["狼牙与牛角号，成为两人珍重的信物。","你终究没有说出那个不能说的秘密。","你们并肩走向草场，情谊在日常中慢慢扎根。"],cast:["巴音","小蝶","阿古拉"],rel:"阿古拉与巴音结为安达；阿古拉疼爱妹妹小蝶。"},
